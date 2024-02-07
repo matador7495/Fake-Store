@@ -3,6 +3,8 @@ import { getData } from "./utils/httpReq.js";
 import { shortenText } from "./utils/stringFunc.js";
 
 let allProducts = null;
+let search = "";
+let category = "all";
 
 const loginButton = document.getElementById("login");
 const dashboardButton = document.getElementById("dashboard");
@@ -54,17 +56,37 @@ const init = async () => {
   showProducts(allProducts);
 };
 
-const searchHandler = () => {
-  const query = inputBox.value.trim().toLowerCase();
+const filterProducts = () => {
+  //method 1
+  const filteredProducts = allProducts.filter((product) => {
+    if (category === "all") {
+      return product.title.toLowerCase().includes(search);
+    } else {
+      return product.title.toLowerCase().includes(search) && product.category.toLowerCase() === category;
+    }
+  });
 
-  if (!query) return showProducts(allProducts);
-  const filteredProducts = allProducts.filter((product) => product.title.toLowerCase().includes(query));
+  // //method 2
+  // const filteredProducts = allProducts.filter(
+  //   (product) => product.title.toLowerCase().includes(search) && 
+  //   (product.category.toLowerCase() === category || category === "all")
+  // );
+
+  // //method 3
+  // const filteredProducts = allProducts
+  //   .filter((product) => product.title.toLowerCase().includes(search))
+  //   .filter((product) => product.category.toLowerCase() === category || category === "all");
 
   showProducts(filteredProducts);
 };
 
+const searchHandler = () => {
+  search = inputBox.value.trim().toLowerCase();
+  filterProducts();
+};
+
 const filterHandler = (event) => {
-  const category = event.target.innerText.toLowerCase();
+  category = event.target.innerText.toLowerCase();
 
   listItems.forEach((li) => {
     if (li.innerText.toLowerCase() === category) {
@@ -74,10 +96,7 @@ const filterHandler = (event) => {
     }
   });
 
-  if (category === "all") return showProducts(allProducts);
-  
-  const filteredProducts = allProducts.filter((product) => product.category.toLowerCase() === category);
-  showProducts(filteredProducts);
+  filterProducts();
 };
 
 document.addEventListener("DOMContentLoaded", init);
